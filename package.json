@@ -1,0 +1,22 @@
+{
+  "name": "seleniumjs",
+  "version": "1.0.0",
+  "description": "Selenium tests",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "chromedriver": "^107.0.2",
+    "geckodriver": "^3.2.0",
+    "read-excel-file": "^5.5.3",
+    "selenium-webdriver": "^4.5.0",
+    "write-excel-file": "^1.4.14"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
