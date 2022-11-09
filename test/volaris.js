@@ -1,3 +1,4 @@
+const { assert } = require("console");
 const { By, Builder, Key, until } = require("selenium-webdriver");
 const { elementIsVisible } = require("selenium-webdriver/lib/until");
 const { writeExcel } = require("../utils/excelHandler");
@@ -8,21 +9,21 @@ require("chromedriver");
 const DT_URL = "https://www.volaris.com/";
 let DT_DEPARTURE = [];
 let DT_DESTINATION = [];
+let departure = "";
+let destination = "";
 
 const getRandomDeparture = async (driver) => {
     DT_DEPARTURE = await getElementsBy("css", ".destination-item", driver);
     DT_DEPARTURE = await Promise.all(DT_DEPARTURE.map(async (airport) => await airport.getText()));
     const airportIndex = Math.floor(Math.random() * DT_DEPARTURE.length);
-    const desiredAirport = DT_DEPARTURE[airportIndex];
-    return desiredAirport;
+    departure = DT_DEPARTURE[airportIndex];
 };
 
 const getRandomDestination = async (driver) => {
     DT_DESTINATION = await getElementsBy("css", ".destination-item", driver);
     DT_DESTINATION = await Promise.all(DT_DESTINATION.map(async (airport) => await airport.getText()));
     const airportIndex = Math.floor(Math.random() * DT_DESTINATION.length);
-    const desiredAirport = DT_DESTINATION[airportIndex];
-    return desiredAirport;
+    destination = DT_DESTINATION[airportIndex];
 };
 
 const setDepartureDate = async (driver) => {
@@ -61,7 +62,7 @@ const setDeparture = async (driver) => {
     await driver.sleep(10000);
     await getElementBy("linkText", "View all our destinations", driver)
         .then(el => el.click());
-    const departure = await getRandomDeparture(driver);
+    await getRandomDeparture(driver);
     console.log(`DEPARTURE: ${departure}`);
     await getElementBy("xpath", `//li[contains(@class, "destination-item") and contains(text(), "${departure}")]`, driver)
         .then(el => el.click());
@@ -71,10 +72,23 @@ const setDestination = async (driver) => {
     await driver.sleep(10000);
     await getElementBy("linkText", "View all our destinations", driver)
         .then(el => el.click());
-    const destination = await getRandomDestination(driver);
+    await getRandomDestination(driver);
     console.log(`DESTINATION: ${destination}`);
     await getElementBy("xpath", `//li[contains(@class, "destination-item") and contains(text(), "${destination}")]`, driver)
         .then(el => el.click());
+}
+
+const selectCheapestDeparture = async (driver) => {
+    await getElementBy("css", ".sortbyFare", driver)
+        .then(el => el.click());
+    await getElementBy("css", ".flightItem .flightFares .fareRegular", driver)
+        .then(el => el.click());
+    const cheapestCard = await getElementBy("css", ".fareTypes .col-md-4", driver);
+    const actions = driver.actions({ async: true });
+    await actions.move({ origin: cheapestCard }).perform();
+    await cheapestCard
+        .findElement(By.css("mat-card button"))
+        .then(el => el.click())
 }
 
 async function exercise() {
@@ -91,7 +105,12 @@ async function exercise() {
         await setPassengers(driver);
         await getElementBy("css", ".btn-large", driver)
             .then(el => el.click());
-        await driver.sleep(8000);
+        await driver.wait(until.elementIsVisible(await getElementBy("id", "tua-message", driver)), 10000);
+        let bookingDetails = await getElementBy("css", ".route-info-heading", driver);
+        bookingDetails = await bookingDetails.getText();
+        assert(bookingDetails.includes(`${departure}`) && bookingDetails.includes(`${destination}`));
+        await selectCheapestDeparture(driver);
+        await driver.sleep(5000);
     } catch (err) {
         console.log(err);
     } finally {
