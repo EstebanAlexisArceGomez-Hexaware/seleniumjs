@@ -71,7 +71,7 @@ const setDestination = async (driver) => {
     await driver.sleep(10000);
     await getElementBy("linkText", "View all our destinations", driver)
         .then(el => el.click());
-    const destination = await getRandomDeparture(driver);
+    const destination = await getRandomDestination(driver);
     console.log(`DESTINATION: ${destination}`);
     await getElementBy("xpath", `//li[contains(@class, "destination-item") and contains(text(), "${destination}")]`, driver)
         .then(el => el.click());
