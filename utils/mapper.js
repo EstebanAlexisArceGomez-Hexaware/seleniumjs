@@ -17,6 +17,7 @@ const fromObjectToObjectArray = ({DT_URL, DT_DEPARTURE, DT_DESTINATION}) => {
             airportIndex++;
         }
     }
+    console.log(mappedData);
     return mappedData;
 }
 
